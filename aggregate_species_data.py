@@ -5,7 +5,8 @@ import json
 import xml.etree.ElementTree as ET
 
 # Directory containing the XML files
-base_dir = '/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results'
+base_dir = '/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results_v2'
+
 
 # Dictionary to store the aggregated data
 data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -14,7 +15,7 @@ data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 years = set()
 for year in os.listdir(base_dir):
     year_dir = os.path.join(base_dir, year, 'stats')
-    report_file = os.path.join(year_dir, 'report.xml')
+    report_file = os.path.join(year_dir, f'count_samples_report_{year}.xml')
     if os.path.isfile(report_file):
         years.add(year)
         tree = ET.parse(report_file)
@@ -42,11 +43,12 @@ for genus_name, species_data in data.items():
         total_elem.text = str(total_count)
 
 # Write the output XML to a file
-output_file = 'aggregated_report.xml'
+output_file = os.path.join(base_dir, 'aggregated_report.xml')
+
 tree = ET.ElementTree(root)
 tree.write(output_file, encoding='utf-8', xml_declaration=True)
 # Write the output CSV to a file
-csv_file = 'aggregated_report.csv'
+csv_file = os.path.join(base_dir, 'aggregated_report.csv')
 with open(csv_file, mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(['Genus', 'Species', 'Year', 'Count', 'Total'])
@@ -60,7 +62,7 @@ with open(csv_file, mode='w', newline='') as file:
             writer.writerow([genus_name, species_name, 'Total', '', total_count])
 
 # Write the output JSON to a file
-json_file = 'aggregated_report.json'
+json_file = os.path.join(base_dir, 'aggregated_report.json')
 json_data = {}
 for genus_name, species_data in data.items():
     json_data[genus_name] = {}

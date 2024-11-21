@@ -15,29 +15,29 @@ def setup_logging(year):
     :param year: The year to include in the log file names.
     """
     # Create the directory including the year if it doesn't exist
-    log_directory = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results/{year}/log_files'
+    log_directory = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results_v2/{year}/log_files'
     os.makedirs(log_directory, exist_ok=True)
 
     # Setup individual loggers for different logs
     xml_found_log = logging.getLogger('xml_found_log')
-    xml_found_log_handler = logging.FileHandler(os.path.join(log_directory, f'xml_found_log_{year}.txt'))
+    xml_found_log_handler = logging.FileHandler(os.path.join(log_directory, f'xml_found_log_{year}.log'))
     xml_found_log.addHandler(xml_found_log_handler)
 
     analyte_validation_log = logging.getLogger('analyte_validation_log')
-    analyte_validation_log_handler = logging.FileHandler(os.path.join(log_directory, f'analyte_validation_log_{year}.txt'))
+    analyte_validation_log_handler = logging.FileHandler(os.path.join(log_directory, f'analyte_validation_log_{year}.log'))
     analyte_validation_log.addHandler(analyte_validation_log_handler)
     
     analyte_zip_found_log = logging.getLogger('analyte_zip_found_log')
-    analyte_zip_found_log_handler = logging.FileHandler(os.path.join(log_directory, f'analyte_zip_found_log_{year}.txt'))
+    analyte_zip_found_log_handler = logging.FileHandler(os.path.join(log_directory, f'analyte_zip_found_log_{year}.log'))
     analyte_zip_found_log.addHandler(analyte_zip_found_log_handler)
     
     directory_move_log = logging.getLogger('directory_move_log')
-    directory_move_log_handler = logging.FileHandler(os.path.join(log_directory, f'directory_move_log_{year}.txt'))
+    directory_move_log_handler = logging.FileHandler(os.path.join(log_directory, f'directory_move_log_{year}.log'))
     directory_move_log.addHandler(directory_move_log_handler)
 
     # Logger for recording errors that occur during processing
     error_log = logging.getLogger('error_log')
-    error_log_handler = logging.FileHandler(os.path.join(log_directory, f'error_log_{year}.txt'))
+    error_log_handler = logging.FileHandler(os.path.join(log_directory, f'error_log_{year}.log'))
     error_log.addHandler(error_log_handler)
 
     # Set log level and format
@@ -195,7 +195,7 @@ def organize_files(valid_entries, analyte_zip_found_log, directory_move_log, err
                 continue
 
             else:
-                dest_dir = os.path.join(base_dest_dir, genus, species, extern_id, f'0_{target_position}')
+                dest_dir = os.path.join(base_dest_dir, genus, species, extern_id[:8], f'0_{target_position}')
                 zip_and_move_folder(zip_ref, folder_name, dest_dir, directory_move_log, error_log)
 
                 # Update species count within genus
@@ -260,7 +260,7 @@ def generate_reports(df, year):
     :param year: Year for the report.
     :return: Paths to the generated CSV, JSON, and XML files.
     """
-    stats_dir = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results/{year}/stats'
+    stats_dir = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results_v2/{year}/stats'
     os.makedirs(stats_dir, exist_ok=True)
     
     # Generate CSV
@@ -285,7 +285,6 @@ def generate_reports(df, year):
     tree = ET.ElementTree(root)
     tree.write(xml_path, encoding='utf-8', xml_declaration=True)
     
-    
 
 
 def main():
@@ -302,7 +301,7 @@ def main():
     xml_found_log, analyte_validation_log, analyte_zip_found_log, directory_move_log, error_log = setup_logging(year)
     
     # Define paths
-    base_dest_dir = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results/{year}/matched_bacteria/'
+    base_dest_dir = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results_v2/{year}/matched_bacteria/'
     xml_file_path = '/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/XML_2018a2022.zip'
     zip_file_path = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/{year}.zip'
     

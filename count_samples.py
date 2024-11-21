@@ -3,13 +3,17 @@ import json
 import csv
 import xml.etree.ElementTree as ET
 
-# Directory containing the data
-base_dir = '/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results/2019/matched_bacteria'
+# Solicitar al usuario que ingrese un año
+year = input("Please enter the year you want to clean (e.g., 2020): ")
 
-# Dictionary to store the aggregated data
+# Directorio que contiene los datos
+base_dir = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results_v2/{year}/matched_bacteria'
+output_dir = f'/export/data_ml4ds/bacteria_id/RAW_MaldiMaranon/data_cleaner_results_v2/{year}/stats'
+
+# Diccionario para almacenar los datos agregados
 data = {}
 
-# Traverse the directory structure and count the samples
+# Recorrer la estructura del directorio y contar las muestras
 for genus in os.listdir(base_dir):
     genus_dir = os.path.join(base_dir, genus)
     if os.path.isdir(genus_dir):
@@ -28,7 +32,7 @@ for genus in os.listdir(base_dir):
                     data[genus] = {}
                 data[genus][species] = count
 
-# Create the output XML structure
+# Crear la estructura XML de salida
 root = ET.Element('Results')
 for genus_name in sorted(data.keys()):
     genus_elem = ET.SubElement(root, 'Genus', name=genus_name)
@@ -36,12 +40,13 @@ for genus_name in sorted(data.keys()):
         species_elem = ET.SubElement(genus_elem, 'Species', name=species_name)
         species_elem.text = str(data[genus_name][species_name])
 
-# Write the output XML to a file
-output_file = 'report.xml'
+# Escribir el XML de salida en un archivo
+xml_file = os.path.join(output_dir, f'count_samples_report_{year}.xml')
 tree = ET.ElementTree(root)
-tree.write(output_file, encoding='utf-8', xml_declaration=True)
-# Write the output CSV to a file
-csv_file = 'report.csv'
+tree.write(xml_file, encoding='utf-8', xml_declaration=True)
+
+# Escribir el CSV de salida en un archivo
+csv_file = os.path.join(output_dir, f'count_samples_report_{year}.csv')
 with open(csv_file, mode='w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(['Genus', 'Species', 'Count'])
@@ -49,7 +54,7 @@ with open(csv_file, mode='w', newline='') as file:
         for species_name in sorted(data[genus_name].keys()):
             writer.writerow([genus_name, species_name, data[genus_name][species_name]])
 
-# Write the output JSON to a file
-json_file = 'report.json'
+# Escribir el JSON de salida en un archivo
+json_file = os.path.join(output_dir, f'count_samples_report_{year}.json')
 with open(json_file, mode='w') as file:
     json.dump(data, file, indent=4)
