@@ -206,3 +206,40 @@ output_base_dir = './processed_spectra_images'
 compare_spectra(species_data, output_base_dir)
 
 print(f"All images saved in: {output_base_dir}")
+# Generate overlaid plot of the first preprocessed spectrum for each species
+def compare_first_spectra(species_data, output_base_dir):
+    """
+    Compare the first preprocessed spectrum of each species in an overlaid format.
+    """
+    # Prepare figure for the comparison plot
+    plt.figure(figsize=(10, 6))  # Adjust figure size to accommodate overlaid spectra
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']  # Colors for different species
+
+    # Loop through each species and plot the first preprocessed spectrum
+    for idx, (species_name, paths) in enumerate(species_data.items()):
+        acqu_file = paths['acqu_files'][0]
+        fid_file = paths['fid_files'][0]
+
+        # Load the spectrum
+        spectrum = SpectrumObject.from_bruker(acqu_file, fid_file)
+
+        # Preprocess the spectrum (all 5 steps)
+        processed_spectrum = preprocess_spectrum(spectrum)
+
+        # Plot the preprocessed spectrum
+        plt.plot(processed_spectrum.mz, processed_spectrum.intensity, label=species_name, color=colors[idx % len(colors)])
+    
+    # Label the plot
+    plt.xlabel('m/z')
+    plt.ylabel('Intensity')
+    plt.title('Comparison of First Preprocessed Spectrum of Each Species')
+    plt.legend()
+
+    # Save the final comparison plot
+    os.makedirs(output_base_dir, exist_ok=True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_base_dir, 'comparison_of_first_spectra.png'))
+    plt.close()
+
+# Step 2: Compare the first spectrum of each species and generate comparison image
+compare_first_spectra(species_data, output_base_dir)
